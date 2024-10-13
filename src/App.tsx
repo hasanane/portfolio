@@ -1,3 +1,4 @@
+import { useState } from "react";
 import "./index.css";
 function App() {
   return (
@@ -17,25 +18,6 @@ function First() {
           </div>
           <div className="w-1/2 flex justify-center items-center bg-green-200">
             programing
-          </div>
-        </div>
-        <div className="top-[2%] z-10 absolute w-full h-s60 flex">
-          <div className=" h-s60 w-1/2 flex" dir="ltr">
-            <div className="w-28 h-1/5 ml-3.5 flex justify-center items-center bg-blue-200">
-              social
-            </div>
-          </div>
-          <div className="h-s60 w-1/2 flex" dir="rtl">
-            <div className="w-28 h-1/5 mr-3.5 flex justify-center items-center bg-blue-200">
-              lang
-            </div>
-          </div>
-        </div>
-        <div className="absolute top-[40%] flex justify-center w-full h-s60 z-20">
-          <div className="w-full h-s60 flex justify-center">
-            <div className=" bg-blue-100 w-2/5 h-1/5 flex justify-center items-center">
-              Name
-            </div>
           </div>
         </div>
       </div>
@@ -83,22 +65,7 @@ function Second() {
           {/* right bar */}
           <div className="w-3/4 bg-red-100">
             {/* about setion */}
-            <div className="flex flex-col h-s80">
-              <div className="h-2/5 flex">
-                <div className="h-full w-1/4 bg-red-200 flex justify-center items-center">
-                  Photo
-                </div>
-                <div className="h-full w-3/4 bg-red-400 flex justify-center items-center">
-                  Name
-                </div>
-              </div>
-              <div className="h-2/5 bg-green-200 justify-center items-center flex">
-                Bio
-              </div>
-              <div className="h-1/5 bg-pink-300 justify-center items-center flex">
-                Info about selected word
-              </div>
-            </div>
+            <BasicInformation />
             {/* skills setion */}
             <div>
               <div className="flex flex-col h-s80">
@@ -178,6 +145,57 @@ function Second() {
             </div>
           </div>
         </div>
+      </div>
+    </div>
+  );
+}
+
+function BasicInformation() {
+  return (
+    <div className="flex flex-col h-s80">
+      <div className="h-2/5 flex">
+        <div className="h-full w-1/4 bg-red-200 flex justify-center items-center">
+          Photo
+        </div>
+        <div className="h-full w-3/4 bg-red-400 flex justify-center items-center">
+          Name
+        </div>
+      </div>
+      <p className="h-2/5 bg-green-200">
+        I study in{" "}
+        <span
+          onClick={() => {
+            console.log("hi");
+            setWord("Azad university");
+          }}
+          className="bg-red-100"
+        >
+          Azad university
+        </span>{" "}
+        in{" "}
+        <span
+          onClick={() => {
+            console.log("hi");
+            setWord("Tehran");
+          }}
+          >
+          Tehran
+        </span>
+      </p>
+      <BioExplaination />
+    </div>
+  );
+}
+function BioExplaination() {
+  const [word, setWord] = useState("");
+ const wordMap = {
+   Tehran: "Tehran is a city",
+   "Azad university": "Azad university is Big",
+ };
+return (
+    <div className="h-1/3">
+      <div className="h-full bg-pink-300 justify-center items-center flex">
+        {wordMap[word]}
       </div>
     </div>
   );
