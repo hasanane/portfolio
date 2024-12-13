@@ -1,3 +1,49 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+a:hover{
+background-color: rgba(0, 0, 0, 0);
+}
+.info {
+  color: rgb(0, 0, 0); /* رنگ لینک */
+  background-color: gray;
+  text-decoration: none; /* حذف خط زیر */
+  display: inline; /* نمایش به صورت خطی */
+  cursor: pointer; /* اشاره‌گر برای نشان دادن که کلیک‌پذیر است */
+}
+
+.selectable-text {
+  user-select: text;
+}
+button{
+  user-select: text;
+}
+::selection {
+  background-color: #d6c9f4;
+  color: #333;
+}
+.name{
+  background-image: radial-gradient(
+    circle,
+    #06b6d4,
+    rgba(0, 0, 0, 0)
+  );
+}
+.hover\:gradient-hover:hover {
+  background-image: radial-gradient(
+    circle,
+    rgb(165, 165, 165, 0.5),
+    rgba(0, 0, 0, 0)
+  );
+}
+/*  */
+/* استایل‌های ابتدایی برای هر بخش */
+.fade-in {
+  opacity: 0; /* به طور پیش‌فرض عنصر پنهان است */
+  transition: opacity 0.7s ease-out; /* زمان انیمیشن و نوع انیمیشن */
+}
+
+/* کلاس visible که به عنصر افزوده می‌شود زمانی که دیده می‌شود */
+.visible {
+  opacity: 1; /* زمانی که عنصر در صفحه قرار می‌گیرد، ظاهر می‌شود */
+}
