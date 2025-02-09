@@ -5,6 +5,29 @@ import "./index.css";
 // import { FullPage , Slide } from '@ap.cx/react-fullpage';
 
 function App() {
+  //                                                                window chainging animation
+  const [isScrolled, setIsStyled] = useState<boolean>(false);
+
+  // استفاده از useEffect در سطح کامپوننت
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      if (currentScrollY > 200) {
+        setIsStyled(true);
+      } else {
+        setIsStyled(false);
+      }
+    };
+
+    // افزودن event listener برای اسکرول
+    window.addEventListener("scroll", handleScroll);
+
+    // پاکسازی event listener در زمان unmount
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []); // فقط یکبار وقتی کامپوننت mount می‌شود فراخوانی شود
+
   useEffect(() => {
     // ایجاد یک Intersection Observer برای نظارت بر عناصری که به صفحه وارد می‌شوند
     const observer = new IntersectionObserver(
@@ -19,7 +42,7 @@ function App() {
           }
         });
       },
-      { threshold: 0.2 } // این تنظیم تعیین می‌کند که چه مقدار از عنصر باید در صفحه دیده شود
+      { threshold: 0.01 } // این تنظیم تعیین می‌کند که چه مقدار از عنصر باید در صفحه دیده شود
     );
 
     // انتخاب تمام عناصری که می‌خواهیم تحت نظر قرار دهیم
@@ -37,83 +60,94 @@ function App() {
         <HomePage />
       </div>
       <div className="">
-        <Content />
+        <Content isScrolled={isScrolled} />
       </div>
     </div>
   );
 }
 function HomePage() {
-  const scrollToSection = (id: string) => {
-    setTimeout(() => {
-      const section = document.getElementById(id);
-      if (section) {
-        section.scrollIntoView({ behavior: "smooth" });
+  //                                                              mouse position
+  interface MousePosition {
+    x: number;
+    y: number;
+  }
+  const [MousePosition, setMouseY] = useState<MousePosition>({ x:  window.innerWidth/2, y: 0 });
+
+  useEffect(() => {
+    const handleMouseMove = (event: MouseEvent): void => {
+      if ((event.pageX >= window.innerWidth/6) && (event.pageX <= window.innerWidth*5/6 ) &&(event.pageY <= window.innerHeight*0.7)) {
+        setMouseY({ x: event.pageX, y: event.pageY });   // فقط زمانی که کمتر از حداکثر باشد
       }
-    }, 0);
-  };
+    };
+    window.addEventListener("mousemove", handleMouseMove);
+
+    // پاکسازی هنگام خروج از کامپوننت
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+    };
+  }, []); // اجرا فقط یک بار هنگام لود کامپوننت
+
+  const leftBoxWidth: number = window.innerWidth - MousePosition.x;
+
+  // const scrollToSection = (id: string) => {
+  //   setTimeout(() => {
+  //     const section = document.getElementById(id);
+  //     if (section) {
+  //       section.scrollIntoView({ behavior: "smooth" });
+  //     }
+  //   }, 0);
+  // };
   return (
     <div
       id="homePage"
       className=" relative h-svh bg-gradient-to-t from-white via-Cyan-500 to-blue-300 flex flex-col"
     >
-      <div className="flex flex-col items-center">
-        <div className=" name w-[30%] h-[10%]  text-white rounded-lg  top-[55%] absolute z-10 flex justify-center items-center text-6xl font-semibold">
+      <div className="flex flex-col items-center overflow-hidden">
+        <div className=" name w-[30%] h-[10%]  text-white rounded-lg  top-[55%] absolute z-20 flex justify-center items-center text-6xl font-semibold">
           Hi im Hasanain
         </div>
         <img
-          className="absolute z-0 h-[69%]"
+          className=" absolute z-10 h-[69%]"
           src="/src/Clipped_image_20241120_171320.png"
           alt="image"
         />
+
+        <img
+
+          src="/src/programing.jpg"
+          alt="programing"
+          className={` w-full  absolute z-0 w- h-[69%]`}
+        />
+        <img
+          src="/src/electronic.jpg"
+          alt="electronic"
+          className={` w-full absolute z-0 h-[69%]`}
+          style={{
+            clipPath: `inset(0  0 0 ${leftBoxWidth}px)`, // برش فقط از سمت راست
+          }}
+        />
       </div>
       <div className=" z-20 h-[70%]  w-full flex">
-        <button className="w-1/2 flex justify-center text-3xl items-center text-white rounded shadow-lg hover:gradient-hover transition duration-500 ease-in-out">
-          Electronic Engineering
-        </button>
-        <button className="w-1/2 flex justify-center text-3xl items-center text-white rounded shadow-lg hover:gradient-hover transition duration-500 ease-in-out">
+        <button
+          style={{ width: `${leftBoxWidth +10}px` }}
+          className={` flex justify-center text-3xl items-center text-white rounded shadow-lg hover:gradient-hover `}
+        >
           Programing
+        </button>
+        <button
+          style={{ width: `${MousePosition.x -10}px` }}
+          className={` flex justify-center text-3xl items-center text-white rounded shadow-lg hover:gradient-hover`}
+        >
+          Electronic
         </button>
       </div>
       <div className="ml-[1%] w-[98%] h-2 bg-gradient-to-r from-Cyan-200 via-black to-Cyan-200 rounded-md"></div>
-      <div className="h-[30%] flex">
-        <a
-          onClick={() => scrollToSection("About")}
-          className="w-1/4 h-full flex justify-center items-center"
-        >
-          <button className="rounded-lg w-full h-full flex justify-center text-3xl items-center hover:border-dotted hover:border-4 border-Cyan-800 rounded hover:gradient-hover transition duration-500 ease-in-out">
-            About
-          </button>
-        </a>
-        <a
-          onClick={() => scrollToSection("skills")}
-          className=" w-1/4 h-full flex justify-center items-center"
-        >
-          <button className="rounded-lg w-full h-full flex justify-center text-3xl items-center hover:border-dotted hover:border-4 border-Cyan-800 rounded hover:gradient-hover transition duration-500 ease-in-out">
-            Skill & Tools
-          </button>
-        </a>
-        <a
-          onClick={() => scrollToSection("projects")}
-          className=" w-1/4 h-full flex justify-center items-center"
-        >
-          <button className=" rounded-lg w-full h-full flex justify-center text-3xl items-center hover:border-dotted hover:border-4 border-Cyan-800 rounded hover:gradient-hover transition duration-500 ease-in-out">
-            Projects
-          </button>
-        </a>
-        <a
-          onClick={() => scrollToSection("contact")}
-          className=" w-1/4 h-full flex justify-center items-center"
-        >
-          <button className="rounded-lg w-full h-full flex justify-center text-3xl items-center hover:border-dotted hover:border-4 border-Cyan-800 rounded hover:gradient-hover transition duration-500 ease-in-out">
-            Contact
-          </button>
-        </a>
-      </div>
+      {/* buttons */}
     </div>
   );
 }
-function Content() {
-  const [isScrolled, setScroll] = useState(false);
+function Content({ isScrolled }: { isScrolled: boolean }) {
+  const [isFinishScrolled, setScroll] = useState<boolean>(false);
   const scrollPoint = window.innerHeight;
   useEffect(() => {
     const handleScroll = () => {
@@ -145,18 +179,113 @@ function Content() {
       <div className="flex  h-auto w-full">
         {/* left bar */}
         <div
+          className={` flex transition-all duration-500 ease-in-out ${
+            isScrolled
+              ? `${
+                  isFinishScrolled ? "fixed top-[100px]" : ""
+                } w-1/4  flex-col items-center`
+              : "h-screen fixed w-screen top-[71%]"
+          }`}
+        >
+          <a
+            className={`transition-all duration-500 ease-in-out ${
+              isScrolled ? " w-3/5 h-auto mt-8" : "hidden"
+            }`}
+            onClick={() => scrollToSection("homePage")}
+          >
+            <button
+              className={`transition-all duration-500 ease-in-out ${
+                isScrolled
+                  ? " w-full font-medium bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center "
+                  : ""
+              }`}
+            >
+              Home page
+            </button>
+          </a>
+          <a
+            onClick={() => scrollToSection("About")}
+            className={`transition-all duration-500 ease-in-out ${
+              isScrolled
+                ? " w-3/5 h-auto mt-8"
+                : " w-1/4 h-[30%] flex justify-center items-center"
+            } `}
+          >
+            <button
+              className={`transition-all duration-500 ease-in-out ${
+                isScrolled
+                  ? "w-full text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center "
+                  : "rounded-lg w-full h-full flex justify-center text-3xl items-center hover:border-dotted hover:border-4 border-Cyan-800 rounded hover:gradient-hover transition duration-500 ease-in-out"
+              }  `}
+            >
+              About
+            </button>
+          </a>
+          <a
+            onClick={() => scrollToSection("skills")}
+            className={`transition-all duration-500 ease-in-out ${
+              isScrolled
+                ? " w-3/5 h-auto mt-8"
+                : " w-1/4 h-[30%] flex justify-center items-center"
+            }  `}
+          >
+            <button
+              className={`transition-all duration-500 ease-in-out ${
+                isScrolled
+                  ? "w-full text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center "
+                  : "rounded-lg w-full h-full flex justify-center text-3xl items-center hover:border-dotted hover:border-4 border-Cyan-800 rounded hover:gradient-hover transition duration-500 ease-in-out"
+              }`}
+            >
+              Skill & Tools
+            </button>
+          </a>
+          <a
+            onClick={() => scrollToSection("projects")}
+            className={`transition-all duration-500 ease-in-out ${
+              isScrolled
+                ? " w-3/5 h-auto mt-8"
+                : " w-1/4 h-[30%] flex justify-center items-center"
+            }`}
+          >
+            <button
+              className={`transition-all duration-500 ease-in-out ${
+                isScrolled
+                  ? "w-full text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center "
+                  : "rounded-lg w-full h-full flex justify-center text-3xl items-center hover:border-dotted hover:border-4 border-Cyan-800 rounded hover:gradient-hover transition duration-500 ease-in-out"
+              }`}
+            >
+              Projects
+            </button>
+          </a>
+          <a
+            onClick={() => scrollToSection("contact")}
+            className={`transition-all duration-500 ease-in-out ${
+              isScrolled
+                ? " w-3/5 h-auto mt-8"
+                : " w-1/4 h-[30%] flex justify-center items-center"
+            }`}
+          >
+            <button
+              className={`transition-all duration-500 ease-in-out ${
+                isScrolled
+                  ? "w-full text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center "
+                  : "rounded-lg w-full h-full flex justify-center text-3xl items-center hover:border-dotted hover:border-4 border-Cyan-800 rounded hover:gradient-hover transition duration-500 ease-in-out"
+              }`}
+            >
+              Contact
+            </button>
+          </a>
+        </div>
+        {/* <div
           className={`${
-            isScrolled ? "fixed top-[100px]" : ""
+            isFinishScrolled ? "fixed top-[100px]" : ""
           } w-1/4  flex flex-col items-center`}
         >
           <a
             className=" w-3/5 h-auto mt-8"
             onClick={() => scrollToSection("homePage")}
           >
-            <button
-              type="button"
-              className="w-full font-medium bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center "
-            >
+            <button className="w-full font-medium bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center ">
               Home page
             </button>
           </a>
@@ -164,10 +293,7 @@ function Content() {
             onClick={() => scrollToSection("About")}
             className=" w-3/5 h-auto mt-8"
           >
-            <button
-              type="button"
-              className="w-full text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center "
-            >
+            <button className="w-full text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center ">
               About
             </button>
           </a>
@@ -175,10 +301,7 @@ function Content() {
             onClick={() => scrollToSection("skills")}
             className="w-3/5 h-auto mt-8"
           >
-            <button
-              type="button"
-              className="w-full text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-            >
+            <button className="w-full text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
               skill & Toolst
             </button>
           </a>
@@ -186,10 +309,7 @@ function Content() {
             onClick={() => scrollToSection("projects")}
             className="w-3/5 h-auto mt-8"
           >
-            <button
-              type="button"
-              className="w-full text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-            >
+            <button className="w-full text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
               Projects
             </button>
           </a>
@@ -197,10 +317,7 @@ function Content() {
             onClick={() => scrollToSection("contact")}
             className="w-3/5 h-auto mt-8"
           >
-            <button
-              type="button"
-              className="w-full text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-            >
+            <button className="w-full text-white bg-gradient-to-r from-cyan-500 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-cyan-300 dark:focus:ring-cyan-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
               Contact
             </button>
           </a>
@@ -234,11 +351,15 @@ function Content() {
               </span>
             </a>
           </div>
-          {/* <div className="bg-black w-[160px] h-0.5 rounded-md "></div> */}
-        </div>
+          <div className="bg-black w-[160px] h-0.5 rounded-md "></div>
+          </div> */}
 
         {/* right bar */}
-        <div className={`w-3/4 ${isScrolled ? "ml-[25%]" : ""}`}>
+        <div
+          className={`w-3/4 ${
+            !(isFinishScrolled !== isScrolled) ? " ml-[25%] " : ""
+          }`}
+        >
           {/* about setion */}
           <BasicInformation />
           {/* skills setion */}
